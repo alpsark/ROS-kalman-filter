@@ -284,7 +284,7 @@ class StateEstimation {
 			Ball_cov_diag  = matrix_product(F_dyn, Ball_cov_diag , 4, 4, 4 ) ; 
 	    
 			//compute kalman gain
-			Kalman_gain = matrix_product(Ball_cov_diag, H_t , 4 , 2, 4 );//
+			Kalman_gain = matrix_product(Ball_cov_diag, H_t , 4 , 2, 4 );//used as temp
 			S = matrix_product(H, Kalman_gain , 2 , 2, 4 );
 			S[0][0] = S[0][0] + R_diag[0] ; 
 			S[1][1] = S[1][1] + R_diag[1] ;
@@ -296,7 +296,7 @@ class StateEstimation {
 			S[0][0] = S[1][1] /  reverse_cons ; 
 			S[1][1] = temp_S /  reverse_cons ; 
 			S[0][1] = (-1 * S[0][1]) /  reverse_cons ; 
-			S[1][0] = (-1 * S[1][0]) /  reverse_cons ; 
+			S[1][0] = (-1 * S[1][0]) /  reverse_cons ; //S is not S_inv
 
 			Kalman_gain = matrix_product(Kalman_gain , S , 4 , 2 , 2);
 
@@ -309,7 +309,8 @@ class StateEstimation {
 		    new_state[2] += measurement_error[0] * Kalman_gain[2][0] + measurement_error[1] * Kalman_gain[2][1] ;
 		    new_state[3] += measurement_error[0] * Kalman_gain[3][0] + measurement_error[1] * Kalman_gain[3][1] ;
 
-			temp = matrix_product(Kalman_gain , H , 4 , 4 , 2);//
+			temp = matrix_product(Kalman_gain , H , 4 , 4 , 2);
+			//I - temp
 			temp[0][0] = 1 - temp[0][0] ;temp[0][1] =-temp[0][1];temp[0][2] =-temp[0][2];temp[0][3] =-temp[0][3]; 
 			temp[1][1] = 1 - temp[1][1] ;temp[1][0] =-temp[1][0];temp[1][2] =-temp[1][2];temp[1][3] =-temp[1][3];
 			temp[2][2] = 1 - temp[2][2] ;temp[2][0] =-temp[2][0];temp[2][1] =-temp[2][1];temp[2][3] =-temp[2][3];
